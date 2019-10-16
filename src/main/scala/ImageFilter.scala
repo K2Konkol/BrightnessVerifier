@@ -1,12 +1,16 @@
-
 import java.awt.Color
 import java.awt.image.BufferedImage
 
 object ImageFilter {
 
+
   private def parse(array: Float): Int = ((1-array)*100).intValue
   private def avg(value: IndexedSeq[Int]) = (value.sum / value.length).intValue
 
+  /*
+  method iterates through all the pixels in the image, converts them from RGB to HSB
+  and returns metadata as a tuple
+   */
   def filter(image: BufferedImage, cutoff: Int): (String, Int) = {
     val avgBrightness = avg(for {
       x <- 0 until image.getWidth
