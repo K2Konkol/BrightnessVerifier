@@ -30,8 +30,9 @@ object FileIO extends App{
       StandardCopyOption.REPLACE_EXISTING
     )
 
-  applyFilter(url)
+    applyFilter(url)
     .foreach(f => {
+      println(f)
       val filtered = ImageFilter.filter(ImageIO read f, ConfigFactory.load().getInt("cutoff"))
       copyImage(f.getPath, addMetadata(f, filtered._1, filtered._2))
     })
