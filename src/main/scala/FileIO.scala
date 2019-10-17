@@ -3,10 +3,10 @@ import javax.imageio.ImageIO
 import java.io.File
 import java.nio.file.{Files, Paths, StandardCopyOption}
 
-object FileIO extends App{
+object FileIO extends App {
 
   /*
-  default cutoff, input/output values set in resources/application.conf
+  default cutoff, input/output values are set in resources/application.conf
   values can be passed as a command line arguments
    */
   val in = ConfigFactory.load().getString("input")
@@ -15,13 +15,13 @@ object FileIO extends App{
   val inputPath = new File(in).getCanonicalPath
   val outputPath = new File(out).getCanonicalPath
 
-  // adds input files to list
+  // adds files to list from given input folder
   def listFiles(dir: String):List[File] = {
     val d = new File(dir).getCanonicalFile
     if (d.exists && d.isDirectory) d.listFiles().toList else List[File]()
   }
 
-  // changes output path and adds metadata to file name
+  // adds metadata to file name and changes output path
   def addMetadata(file: File, desc: String, intValue: Int): String = {
     val ext = file.getName.split("\\.").last
     val path = file.getCanonicalPath
@@ -29,9 +29,11 @@ object FileIO extends App{
         .replace("." + ext,"_" + desc + "_" + intValue + "." + ext)
   }
 
-  /* copies files to destination folder
-     can be changed to Files.move method to move files instead copying them
+  /*
+    copies files to destination folder
+    can be changed to Files.move method to move files instead copying them
    */
+
   def copyImage(source: String, destination: String): Unit =
     Files.copy(
       Paths get source,
@@ -39,6 +41,7 @@ object FileIO extends App{
       StandardCopyOption.REPLACE_EXISTING
     )
 
+    // applies filter for each file in the list and copies it to output destination with metadata attached
     listFiles(inputPath)
     .foreach(file => {
       println(file)

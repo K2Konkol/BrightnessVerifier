@@ -3,13 +3,15 @@ import java.awt.image.BufferedImage
 
 object ImageFilter {
 
+  // converts brightness value from 0 - 1 (dark to bright) to 0 - 100 scale (bright to dark)
+  private def parse(value: Float): Int = ((1-value)*100).intValue
 
-  private def parse(array: Float): Int = ((1-array)*100).intValue
+  // takes avarage value from all the pixels
   private def avg(value: IndexedSeq[Int]) = (value.sum / value.length).intValue
 
   /*
   method iterates through all the pixels in the image, converts them from RGB to HSB
-  and returns metadata as a tuple
+  and returns metadata, bright/dark and brightness int value as a tuple
    */
   def filter(image: BufferedImage, cutoff: Int): (String, Int) = {
     val avgBrightness = avg(for {

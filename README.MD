@@ -3,3 +3,5 @@ to run application with default settings - in and out folders are in the main pr
 
 to set different values from command line, use for example:
 sbt run -Dinput=/<your-path-here>/in/ -Doutput=/<your-path-here>/out/ -Dcutoff=40
+
+no try-catch included regarding task assumptions
