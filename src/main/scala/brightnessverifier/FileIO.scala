@@ -1,7 +1,10 @@
-import com.typesafe.config.ConfigFactory
-import javax.imageio.ImageIO
+package brightnessverifier
+
 import java.io.File
 import java.nio.file.{Files, Paths, StandardCopyOption}
+
+import com.typesafe.config.ConfigFactory
+import javax.imageio.ImageIO
 
 object FileIO extends App {
 
@@ -22,7 +25,7 @@ object FileIO extends App {
   }
 
   // adds metadata to file name and changes output path
-  def addMetadata(file: File, desc: String, intValue: Int): String = {
+  def addMetadata(inputPath: String, outputPath: String, file: File, desc: String, intValue: Int): String = {
     val ext = file.getName.split("\\.").last
     val path = file.getCanonicalPath
     path.replace(inputPath, outputPath)
@@ -33,7 +36,6 @@ object FileIO extends App {
     copies files to destination folder
     can be changed to Files.move method to move files instead copying them
    */
-
   def copyImage(source: String, destination: String): Unit =
     Files.copy(
       Paths get source,
@@ -42,10 +44,13 @@ object FileIO extends App {
     )
 
     // applies filter for each file in the list and copies it to output destination with metadata attached
-    listFiles(inputPath)
+
+  def apply(input: String, output: String, cutoff: Int) = listFiles(input)
     .foreach(file => {
       println(file)
       val filtered = ImageFilter.filter(ImageIO read file, cutoff)
-      copyImage(file.getCanonicalPath, addMetadata(file, filtered._1, filtered._2))
+      copyImage(file.getCanonicalPath, addMetadata(input, output, file, filtered._1, filtered._2))
     })
+
+  apply(inputPath, outputPath, cutoff)
 }
