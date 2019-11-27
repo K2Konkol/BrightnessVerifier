@@ -2,5 +2,5 @@ projectKey=brightnessverifier
 serverUrl=http://localhost
 serverVersion=7.8.0.26217
 dashboardUrl=http://localhost/dashboard?id=brightnessverifier
-ceTaskId=AW6DRRP7Gd7FMAXvEus5
-ceTaskUrl=http://localhost/api/ce/task?id=AW6DRRP7Gd7FMAXvEus5
+ceTaskId=AW6rbZarnt8QMH01xQ_i
+ceTaskUrl=http://localhost/api/ce/task?id=AW6rbZarnt8QMH01xQ_i

@@ -8,7 +8,7 @@ object ImageFilter {
   // converts brightness value from 0 - 1 (dark to bright) to 0 - 100 scale (bright to dark)
   private def parse(value: Float): Int = ((1-value)*100).intValue
 
-  // takes avarage value from all the pixels
+  // takes average value from all the pixels
   private def avg(value: IndexedSeq[Int]) = (value.sum / value.length).intValue
 
   /*
@@ -19,11 +19,10 @@ object ImageFilter {
     val avgBrightness = avg(for {
       x <- 0 until image.getWidth
       y <- 0 until image.getHeight
-    } yield parse(Color.RGBtoHSB(
-      new Color(image.getRGB(x,y)).getRed,
-      new Color(image.getRGB(x,y)).getGreen,
-      new Color(image.getRGB(x,y)).getBlue,
-      null)(2)))
+    } yield {
+      val pixel = new Color(image.getRGB(x,y))
+      parse(value = Color.RGBtoHSB(pixel.getRed, pixel.getGreen, pixel.getBlue,null)(2))
+    })
     (if (avgBrightness<cutoff) "bright" else "dark",
       avgBrightness)
   }

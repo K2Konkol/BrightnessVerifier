@@ -12,14 +12,12 @@ object FileIO extends App {
   default cutoff, input/output values are set in resources/application.conf
   values can be passed as a command line arguments
    */
-  val in = ConfigFactory.load().getString("input")
-  val out = ConfigFactory.load().getString("output")
   val cutoff =  ConfigFactory.load().getInt("cutoff")
-  val inputPath = new File(in).getCanonicalPath
-  val outputPath = new File(out).getCanonicalPath
+  val inputPath = new File(ConfigFactory.load().getString("input")).getCanonicalPath
+  val outputPath = new File(ConfigFactory.load().getString("output")).getCanonicalPath
 
   // adds files to list from given input folder
-  def listFiles(dir: String):List[File] = {
+  def listFiles(dir: String): List[File] = {
     val d = new File(dir).getCanonicalFile
     if (d.exists && d.isDirectory) d.listFiles().toList else List[File]()
   }
@@ -29,7 +27,7 @@ object FileIO extends App {
     val ext = file.getName.split("\\.").last
     val path = file.getCanonicalPath
     path.replace(inputPath, outputPath)
-        .replace("." + ext,"_" + desc + "_" + intValue + "." + ext)
+        .replace("." + ext ,"_" + desc + "_" + intValue + "." + ext)
   }
 
   /*
