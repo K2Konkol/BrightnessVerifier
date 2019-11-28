@@ -10,6 +10,6 @@ to set different values from command line, use for example:
 
 or
 	
-	sbt -Dcutoff=your_value
+	sbt -Dcutoff=your_value run
 
 no try-catch, input/output verification included regarding task assumptions
