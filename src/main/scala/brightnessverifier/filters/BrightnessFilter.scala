@@ -1,9 +1,9 @@
-package brightnessverifier
+package brightnessverifier.filters
 
 import java.awt.Color
 import java.awt.image.BufferedImage
 
-class BrightnessFilter extends ImageFilter {
+class BrightnessFilter extends Filter {
 
   // converts brightness value from 0 - 1 (dark to bright) to 0 - 100 scale (bright to dark)
   private def parse(value: Float): Int = ((1-value)*100).intValue
@@ -21,7 +21,7 @@ class BrightnessFilter extends ImageFilter {
       y <- 0 until image.getHeight
     } yield {
       val pixel = new Color(image.getRGB(x,y))
-      parse(value = Color.RGBtoHSB(pixel.getRed, pixel.getGreen, pixel.getBlue,null)(2))
+      parse(value = Color.RGBtoHSB(pixel.getRed, pixel.getGreen, pixel.getBlue, null)(2))
     })
     (if (avgBrightness<cutoff) "bright" else "dark",
       avgBrightness)

@@ -2,6 +2,7 @@ package brightnessverifier
 
 import java.awt.image.BufferedImage
 
+import brightnessverifier.filters.{BrightnessFilter, Filter}
 import org.scalatest.{FlatSpec, FunSuite}
 
 class BrightnessFilterTest extends FlatSpec {
@@ -13,7 +14,7 @@ class BrightnessFilterTest extends FlatSpec {
   val color: BufferedImage = new BufferedImage(1,1, BufferedImage.TYPE_INT_RGB)
   color.setRGB(0,0,125)
 
-  val brightnessFilter: ImageFilter = new BrightnessFilter
+  val brightnessFilter: Filter = new BrightnessFilter
 
   "A filter with cutoff 50" should "mark black image as dark and give it value 100" in {
     assert(brightnessFilter.filter(black, 50) == ("dark", 100))

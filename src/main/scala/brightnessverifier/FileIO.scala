@@ -3,6 +3,7 @@ package brightnessverifier
 import java.io.File
 import java.nio.file.{Files, Paths, StandardCopyOption}
 
+import brightnessverifier.filters.{BrightnessFilter, Filter}
 import com.typesafe.config.ConfigFactory
 import javax.imageio.ImageIO
 
@@ -16,7 +17,7 @@ object FileIO extends App {
   val inputPath = new File(ConfigFactory.load().getString("input")).getCanonicalPath
   val outputPath = new File(ConfigFactory.load().getString("output")).getCanonicalPath
 
-  val brightnessFilter: ImageFilter = new BrightnessFilter
+  val brightnessFilter: Filter = new BrightnessFilter
 
   // adds files to list from given input folder
   def listFiles(dir: String): List[File] = {
@@ -29,7 +30,7 @@ object FileIO extends App {
     val ext = file.getName.split("\\.").last
     val path = file.getCanonicalPath
     path.replace(inputPath, outputPath)
-        .replace("." + ext ,"_" + desc + "_" + intValue + "." + ext)
+      .replace("." + ext,"_" + desc + "_" + intValue + "." + ext)
   }
 
   /*
@@ -45,7 +46,7 @@ object FileIO extends App {
 
     // applies filter for each file in the list and copies it to output destination with metadata attached
 
-  def apply(input: String, output: String, cutoff: Int, filter: ImageFilter) = listFiles(input)
+  def apply(input: String, output: String, cutoff: Int, filter: Filter): Unit = listFiles(input)
     .foreach(file => {
       println(file)
       val filtered = filter.filter(ImageIO read file, cutoff)

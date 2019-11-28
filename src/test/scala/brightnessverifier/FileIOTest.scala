@@ -2,20 +2,18 @@ package brightnessverifier
 
 import java.io.File
 
-import brightnessverifier.FileIO.{addMetadata, listFiles, apply}
+import brightnessverifier.FileIO.{addMetadata, apply, listFiles}
+import brightnessverifier.filters.{BrightnessFilter, Filter}
 import com.typesafe.config.ConfigFactory
 import org.scalatest.{BeforeAndAfterEach, FlatSpec}
 
 import scala.language.postfixOps
 
-class FileIOTest extends FlatSpec with BeforeAndAfterEach {
+class FileIOTest extends FlatSpec {
 
-  val in: String = ConfigFactory.load().getString("input")
-  val out: String = ConfigFactory.load().getString("output")
-  val inputPath: String = new File(in).getCanonicalPath
-  val outputPath: String = new File(out).getCanonicalPath
-
-  val brightnessFilter: ImageFilter = new BrightnessFilter
+  val inputPath: String = new File(ConfigFactory.load().getString("input")).getCanonicalPath
+  val outputPath: String = new File(ConfigFactory.load().getString("output")).getCanonicalPath
+  val brightnessFilter: Filter = new BrightnessFilter
 
   "listFiles" should "not be empty" in {
     assert(listFiles(inputPath) nonEmpty)
@@ -26,7 +24,6 @@ class FileIOTest extends FlatSpec with BeforeAndAfterEach {
     assert(addMetadata("in/", "out/", file,"dark",100) contains "out/a_dark_100.jpg")
   }
 
-
   "apply" should "filter a.jpg as dark" in {
     apply(inputPath, outputPath, 65, brightnessFilter)
     assert(listFiles(outputPath).toString() contains "a_dark_83.jpg")
@@ -35,11 +32,4 @@ class FileIOTest extends FlatSpec with BeforeAndAfterEach {
     assert(listFiles(outputPath).toString() contains "b_bright_51.jpg")
     listFiles(outputPath).foreach(f => f.deleteOnExit())
   }
-
-
-
-
-
-
-
 }
