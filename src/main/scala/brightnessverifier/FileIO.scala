@@ -16,6 +16,8 @@ object FileIO extends App {
   val inputPath = new File(ConfigFactory.load().getString("input")).getCanonicalPath
   val outputPath = new File(ConfigFactory.load().getString("output")).getCanonicalPath
 
+  val brightnessFilter: ImageFilter = new BrightnessFilter
+
   // adds files to list from given input folder
   def listFiles(dir: String): List[File] = {
     val d = new File(dir).getCanonicalFile
@@ -43,12 +45,12 @@ object FileIO extends App {
 
     // applies filter for each file in the list and copies it to output destination with metadata attached
 
-  def apply(input: String, output: String, cutoff: Int) = listFiles(input)
+  def apply(input: String, output: String, cutoff: Int, filter: ImageFilter) = listFiles(input)
     .foreach(file => {
       println(file)
-      val filtered = ImageFilter.filter(ImageIO read file, cutoff)
+      val filtered = filter.filter(ImageIO read file, cutoff)
       copyImage(file.getCanonicalPath, addMetadata(input, output, file, filtered._1, filtered._2))
     })
 
-  apply(inputPath, outputPath, cutoff)
+  apply(inputPath, outputPath, cutoff, brightnessFilter)
 }

@@ -15,8 +15,9 @@ class FileIOTest extends FlatSpec with BeforeAndAfterEach {
   val inputPath: String = new File(in).getCanonicalPath
   val outputPath: String = new File(out).getCanonicalPath
 
-  "listFiles" should "not be empty" in {
+  val brightnessFilter: ImageFilter = new BrightnessFilter
 
+  "listFiles" should "not be empty" in {
     assert(listFiles(inputPath) nonEmpty)
   }
 
@@ -27,7 +28,7 @@ class FileIOTest extends FlatSpec with BeforeAndAfterEach {
 
 
   "apply" should "filter a.jpg as dark" in {
-    apply(inputPath, outputPath, 65)
+    apply(inputPath, outputPath, 65, brightnessFilter)
     assert(listFiles(outputPath).toString() contains "a_dark_83.jpg")
   }
   it should "filter b.jpg as bright" in {
