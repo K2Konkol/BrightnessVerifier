@@ -13,11 +13,11 @@ object FileIO extends App {
   default cutoff, input/output values are set in resources/application.conf
   values can be passed as a command line arguments
    */
-  val cutoff =  ConfigFactory.load().getInt("cutoff")
-  val inputPath = new File(ConfigFactory.load().getString("input")).getCanonicalPath
-  val outputPath = new File(ConfigFactory.load().getString("output")).getCanonicalPath
+  val CUTOFF =  ConfigFactory.load().getInt("cutoff")
+  val INPUTPATH = new File(ConfigFactory.load().getString("input")).getCanonicalPath
+  val OUTPUTPATH = new File(ConfigFactory.load().getString("output")).getCanonicalPath
 
-  val brightnessFilter: Filter = new BrightnessFilter
+  val BRIGHTNESSFILTER: Filter = new BrightnessFilter
 
   // adds files to list from given input folder
   def listFiles(dir: String): List[File] = {
@@ -29,8 +29,10 @@ object FileIO extends App {
   def addMetadata(inputPath: String, outputPath: String, file: File, desc: String, intValue: Int): String = {
     val ext = file.getName.split("\\.").last
     val path = file.getCanonicalPath
+    val dot = "."
+    val underscore = "_"
     path.replace(inputPath, outputPath)
-      .replace("." + ext,"_" + desc + "_" + intValue + "." + ext)
+      .replace(dot + ext, underscore + desc + underscore + intValue + dot + ext)
   }
 
   /*
@@ -53,5 +55,5 @@ object FileIO extends App {
       copyImage(file.getCanonicalPath, addMetadata(input, output, file, filtered._1, filtered._2))
     })
 
-  apply(inputPath, outputPath, cutoff, brightnessFilter)
+  apply(INPUTPATH, OUTPUTPATH, CUTOFF, BRIGHTNESSFILTER)
 }
