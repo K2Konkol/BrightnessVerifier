@@ -7,12 +7,14 @@ import brightnessverifier.filters.{BrightnessFilter, Filter}
 import com.typesafe.config.ConfigFactory
 import javax.imageio.ImageIO
 
+import com.rabbitmq.client.{CancelCallback, ConnectionFactory, DeliverCallback}
+
 object FileIO extends App {
 
-  /*
+ /*
   default cutoff, input/output values are set in resources/application.conf
   values can be passed as a command line arguments
-   */
+  
   val CUTOFF =  ConfigFactory.load().getInt("cutoff")
   val INPUTPATH = new File(ConfigFactory.load().getString("input")).getCanonicalPath
   val OUTPUTPATH = new File(ConfigFactory.load().getString("output")).getCanonicalPath
@@ -55,5 +57,43 @@ object FileIO extends App {
       copyImage(file.getCanonicalPath, addMetadata(input, output, file, filtered._1, filtered._2))
     })
 
-  apply(INPUTPATH, OUTPUTPATH, CUTOFF, BRIGHTNESSFILTER)
+    apply(INPUTPATH, OUTPUTPATH, CUTOFF, BRIGHTNESSFILTER)
+  
+*/
+
+
+  override def main(args: Array[String]) = {
+    val QUEUE_NAME = "hello"
+
+    val factory = new ConnectionFactory()
+    factory.setHost("api/mybroker")
+
+    val connection = factory.newConnection()
+    val channel = connection.createChannel()
+
+    channel.queueDeclare(QUEUE_NAME, false, false, false, null)
+
+    println(s"waiting for messages on $QUEUE_NAME")
+
+    val callback: DeliverCallback = (consumerTag, delivery) => {
+      val message = new String(delivery.getBody, "UTF-8")
+      println(s"Received $message with tag $consumerTag")
+    }
+
+    val cancel: CancelCallback = consumerTag => {}
+
+    val autoAck = true
+    channel.basicConsume(QUEUE_NAME, autoAck, callback, cancel)
+
+    while(true) {
+      // we don't want to kill the receiver,
+      // so we keep him alive waiting for more messages
+      Thread.sleep(1000)
+    }
+
+    channel.close()
+    connection.close()
+  }
 }
+
+
