@@ -11,11 +11,11 @@ import com.rabbitmq.client.{CancelCallback, ConnectionFactory, DeliverCallback}
 
 object FileIO extends App {
 
- /*
-  default cutoff, input/output values are set in resources/application.conf
-  values can be passed as a command line arguments
-  
-  val CUTOFF =  ConfigFactory.load().getInt("cutoff")
+  /*
+   default cutoff, input/output values are set in resources/application.conf
+   values can be passed as a command line arguments
+  */
+  val CUTOFF = ConfigFactory.load().getInt("cutoff")
   val INPUTPATH = new File(ConfigFactory.load().getString("input")).getCanonicalPath
   val OUTPUTPATH = new File(ConfigFactory.load().getString("output")).getCanonicalPath
 
@@ -48,7 +48,7 @@ object FileIO extends App {
       StandardCopyOption.REPLACE_EXISTING
     )
 
-    // applies filter for each file in the list and copies it to output destination with metadata attached
+  // applies filter for each file in the list and copies it to output destination with metadata attached
 
   def apply(input: String, output: String, cutoff: Int, filter: Filter): Unit = listFiles(input)
     .foreach(file => {
@@ -57,43 +57,70 @@ object FileIO extends App {
       copyImage(file.getCanonicalPath, addMetadata(input, output, file, filtered._1, filtered._2))
     })
 
-    apply(INPUTPATH, OUTPUTPATH, CUTOFF, BRIGHTNESSFILTER)
-  
-*/
+  // apply(INPUTPATH, OUTPUTPATH, CUTOFF, BRIGHTNESSFILTER)
 
-
-  override def main(args: Array[String]) = {
-    val QUEUE_NAME = "hello"
-
-    val factory = new ConnectionFactory()
-    factory.setHost("api/mybroker")
-
-    val connection = factory.newConnection()
-    val channel = connection.createChannel()
-
-    channel.queueDeclare(QUEUE_NAME, false, false, false, null)
-
-    println(s"waiting for messages on $QUEUE_NAME")
-
-    val callback: DeliverCallback = (consumerTag, delivery) => {
-      val message = new String(delivery.getBody, "UTF-8")
-      println(s"Received $message with tag $consumerTag")
-    }
-
-    val cancel: CancelCallback = consumerTag => {}
-
-    val autoAck = true
-    channel.basicConsume(QUEUE_NAME, autoAck, callback, cancel)
-
-    while(true) {
-      // we don't want to kill the receiver,
-      // so we keep him alive waiting for more messages
-      Thread.sleep(1000)
-    }
-
-    channel.close()
-    connection.close()
+  def filter(filename: String, input: String, output: String, cutoff: Int, filter: Filter): Unit = {
+    val file = new File(INPUTPATH + '/' + filename).getCanonicalFile
+    val filtered = filter.filter(ImageIO read file, cutoff)
+    copyImage(file.getCanonicalPath, addMetadata(input, output, file, filtered._1, filtered._2))
   }
+
+
+  val QUEUE_NAME = "messages"
+
+  val factory = new ConnectionFactory()
+  factory.setHost("mybroker")
+
+  val connection = factory.newConnection()
+  val channel = connection.createChannel()
+
+  try {
+    channel.queueDeclare(QUEUE_NAME, true, false, false, null)
+  } catch {
+    case e: Exception => {
+      Thread.sleep(1000)
+      System.exit(1)
+    }
+  }
+
+  println(s"waiting for messages on $QUEUE_NAME")
+
+  /*
+  * This tells RabbitMQ not to give more than one message to a worker at a time.
+  * Or, in other words, don't dispatch a new message to a worker
+  * until it has processed and acknowledged the previous one.
+  * Instead, it will dispatch it to the next worker that is not still busy.
+  * */
+  val prefetchCount = 1
+  channel.basicQos(prefetchCount)
+
+  val callback: DeliverCallback = (consumerTag, delivery) => {
+    val fileName = new String(delivery.getBody, "UTF-8")
+    try {
+      println(s"Received $fileName with tag $consumerTag")
+      filter(fileName, INPUTPATH, OUTPUTPATH, CUTOFF, BRIGHTNESSFILTER)
+    } finally {
+      println(s"Filtered $fileName")
+      channel.basicAck(delivery.getEnvelope.getDeliveryTag, false)
+    }
+  }
+
+
+  val cancel: CancelCallback = consumerTag => {}
+
+  val autoAck = false
+
+  channel.basicConsume(QUEUE_NAME, autoAck, callback, cancel)
+
+  while (true) {
+    // we don't want to kill the receiver,
+    // so we keep him alive waiting for more messages
+    Thread.sleep(1000)
+  }
+
+  channel.close()
+  connection.close()
 }
+
 
 
