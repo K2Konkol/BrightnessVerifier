@@ -33,8 +33,12 @@ object FileIO extends App {
     val path = file.getCanonicalPath
     val dot = "."
     val underscore = "_"
+    val in = dot + ext
+    val out = underscore + desc + underscore + intValue + dot + ext
+    println( s"Replacing $in with $out")
+
     path.replace(inputPath, outputPath)
-      .replace(dot + ext, underscore + desc + underscore + intValue + dot + ext)
+      .replace(in, out)
   }
 
   /*
@@ -52,7 +56,6 @@ object FileIO extends App {
 
   def apply(input: String, output: String, cutoff: Int, filter: Filter): Unit = listFiles(input)
     .foreach(file => {
-      println(file)
       val filtered = filter.filter(ImageIO read file, cutoff)
       copyImage(file.getCanonicalPath, addMetadata(input, output, file, filtered._1, filtered._2))
     })

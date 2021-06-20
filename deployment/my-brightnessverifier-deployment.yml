@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myworker
+  labels:
+    svc: myworker
+spec:
+  replicas: 3
+  template:
+    metadata:
+      name: myworker
+      labels:
+        component: web
+        svc: myworker
+    spec:
+      volumes:
+        - name: incoming
+          persistentVolumeClaim:
+            claimName: incoming-pvc
+        - name: filtered
+          persistentVolumeClaim:
+            claimName: filtered-pvc
+      containers:
+        - name: my-brightnessverifier-container
+          image: kkonkol/brightnessverifier
+          command: ["scala", "verifier.jar"]
+          volumeMounts:
+            - name: filtered
+              mountPath: /opt/app/shared/filtered
+            - name: incoming
+              mountPath: /opt/app/shared/incoming
+  selector:
+    matchLabels:
+      svc: myworker
+  
+  
+  
